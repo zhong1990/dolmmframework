@@ -1,0 +1,5 @@
+invokeLogFilter=org.dol.framework.dubbo.InvokeLogger
+invokeLogFilterNew=org.dol.framework.dubbo.InvokeLogFilterNew
+
+clientLogFilter=org.dol.framework.dubbo.ClientLogFilter
+checkTransaction=org.dol.framework.dubbo.CheckTransactionFilter

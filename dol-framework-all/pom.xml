@@ -1,0 +1,43 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.dol</groupId>
+        <artifactId>dol-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <artifactId>dol-framework-all</artifactId>
+    <version>1.0.6-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <properties>
+        <org.dol.frameowrk.version>1.0.6-SNAPSHOT</org.dol.frameowrk.version>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+    <modules>
+        <module>../dol-framework-parent</module>
+        <module>../dol-framework-cache</module>
+        <module>../dol-framework-config</module>
+        <module>../dol-framework-core</module>
+        <module>../dol-framework-data</module>
+        <module>../dol-framework-dubbo</module>
+        <module>../dol-framework-logging</module>
+        <module>../dol-framework-queue</module>
+        <module>../dol-framework-registry</module>
+        <module>../dol-framework-search</module>
+        <module>../dol-framework-security</module>
+        <module>../dol-framework-web</module>
+        <module>../dol-framework-zookeeper</module>
+    </modules>
+</project>
