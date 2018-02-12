@@ -1,9 +1,9 @@
 /**
- * dol-contract
+ * xf9-contract
  * GetMessageStatus.java
  * org.dol.message
  * TODO
- * 
+ *
  * @author dolphin
  * @date 2016年7月28日 下午2:13:14
  * @Copyright 2016, 唯创国际 幸福9号 All Rights Reserved.

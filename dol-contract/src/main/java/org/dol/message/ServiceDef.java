@@ -1,12 +1,15 @@
-package org.dol.framework.registry;
+package org.dol.message;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ServiceMethod {
-	String value() default "";
+public @interface ServiceDef {
+
+    String value() default "";
+
+    String module() default "";
 }

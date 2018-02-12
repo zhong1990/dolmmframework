@@ -9,13 +9,15 @@ import java.util.List;
  * TODO.
  *
  * @param <K>
+ * @param <V>
  * @author dolphin
+ * @date 2017年4月15日 下午12:18:34
  */
 public interface Treeable<K> extends Id<K> {
 
-    void addChild(Treeable<K> child);
+    void addChildren(Treeable<K> child);
 
-    List<? extends Treeable<K>> getChildren();
+    List<Treeable<K>> getChildren();
 
     String getName();
 

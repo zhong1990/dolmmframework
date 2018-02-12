@@ -3,6 +3,7 @@
  */
 package org.dol.message;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,41 +14,42 @@ import java.util.List;
  * @author dolphin
  * @date 2017年5月1日 上午8:46:32
  */
-public class TreeNode<K> implements Treeable<K> {
+public class TreeNode<K> implements Treeable<K>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private K id;
     private String name;
 
     private K parentId;
 
-    private List<TreeNode<K>> children;
+    private List<Treeable<K>> children;
 
     /*
      * (non-Javadoc)
-     * @see org.dol.message.Treeable#addChild(org.dol.message.Treeable)
+     * @see org.dol.message.Treeable#addChildren(org.dol.message.Treeable)
      */
     @Override
-    public void addChild(Treeable<K> child) {
+    public void addChildren(Treeable<K> child) {
         if (children == null) {
             children = new ArrayList<>();
         }
-        children.add((TreeNode<K>) child);
+        children.add(child);
+
     }
 
     /**
      * @return the children
      */
     @Override
-    public List<TreeNode<K>> getChildren() {
+    public List<Treeable<K>> getChildren() {
         return children;
     }
 
     /**
-     * TreeNode<K>
-     *
      * @param children the children to set
      */
-    public void setChildren(List<TreeNode<K>> children) {
+    public void setChildren(List<Treeable<K>> children) {
         this.children = children;
     }
 
@@ -97,7 +99,4 @@ public class TreeNode<K> implements Treeable<K> {
         this.parentId = parentId;
     }
 
-    public boolean hasChild() {
-        return getChildren() != null && !getChildren().isEmpty();
-    }
 }

@@ -1,34 +1,35 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.dol</groupId>
-		 <artifactId>dol-framework-parent</artifactId>
-		<version>1.0.6-SNAPSHOT</version>
-	</parent>
-	<artifactId>dol-framework-registry</artifactId>
-	<dependencies>
-		<dependency>
-			<groupId>org.dol</groupId>
-			<artifactId>dol-framework-logging</artifactId>
-			<version>${org.dol.frameowrk.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.dol</groupId>
-			<artifactId>dol-framework-zookeeper</artifactId>
-			<version>${org.dol.frameowrk.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-		</dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.dol</groupId>
+        <artifactId>dol-framework-parent</artifactId>
+        <version>1.0.6-SNAPSHOT</version>
+    </parent>
+    <artifactId>dol-framework-registry</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>org.dol</groupId>
+            <artifactId>dol-framework-logging</artifactId>
+            <version>${org.dol.frameowrk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dol</groupId>
+            <artifactId>dol-contract</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 </project>

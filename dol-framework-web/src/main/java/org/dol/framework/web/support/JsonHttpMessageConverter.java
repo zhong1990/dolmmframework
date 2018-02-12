@@ -19,10 +19,8 @@ import java.io.IOException;
  */
 public class JsonHttpMessageConverter extends FastJsonHttpMessageConverter {
     private static final SerializerFeature[] QUERY_DEFAULT_SERIALIZER_FEATURES = new SerializerFeature[]{
-            SerializerFeature.WriteNullBooleanAsFalse,
-            SerializerFeature.WriteNullStringAsEmpty,
-            SerializerFeature.WriteNullNumberAsZero,
-            SerializerFeature.WriteNullListAsEmpty};
+            SerializerFeature.BrowserSecure
+    };
 
     public JsonHttpMessageConverter() {
         super();

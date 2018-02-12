@@ -10,6 +10,15 @@ public class DefaultHttpClient {
 
     private final static HttpClientUtil DEFAULT_CLIENT = new HttpClientUtil();
 
+    static {
+        DEFAULT_CLIENT.setMaxConnPerRoute(100);
+        DEFAULT_CLIENT.setMaxConnTotal(1000);
+        DEFAULT_CLIENT.setSoKeepAlive(true);
+        DEFAULT_CLIENT.setTcpNoDelay(true);
+        DEFAULT_CLIENT.setUserAgent("Baidu Spider");
+        DEFAULT_CLIENT.init();
+    }
+
 
     public static RequestResult post(String url, String data) throws IOException {
         return DEFAULT_CLIENT.postString(url,

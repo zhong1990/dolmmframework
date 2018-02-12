@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.params.CommonParams;
+import org.dol.framework.http.DefaultHttpClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -48,7 +49,7 @@ public class SearchService implements InitializingBean, DisposableBean {
 
 		SolrQuery solrParams = buildSolrQuery(keywords, filters, returnFeilds, pageIndex, pageSize, sortField, sortDirection);
 		String url = serviceUrl + ClientUtils.toQueryString(solrParams, false);
-		RequestResult requestResult = HttpRequestUtil.get(url, null);
+		RequestResult requestResult = DefaultHttpClient.get(url, null);
 		return requestResult;
 	}
 

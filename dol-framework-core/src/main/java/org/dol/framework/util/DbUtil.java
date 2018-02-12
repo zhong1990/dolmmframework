@@ -11,13 +11,13 @@ import java.util.*;
  */
 public class DbUtil {
 
-    private static final String MYSQL_URL_TEMPLATE = "jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true";
-    private static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
+    private static final String MYSQL_URL_TEMPLATE = "jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false";
+    private static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
 
     private String url;
     private String userName;
     private String password;
-    private Integer batchSize = 500;
+    private Integer batchSize = 2000;
 
     public DbUtil(String driverClass, String url, String username, String password) throws ClassNotFoundException {
         this(driverClass, url, username, password, null);

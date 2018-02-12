@@ -1,9 +1,9 @@
 /**
- * dol-contract
+ * xf9-contract
  * SortField.java
  * org.dol.contract.message
  * TODO
- * 
+ *
  * @author dolphin
  * @date 2016年7月26日 下午4:48:19
  * @Copyright 2016, 唯创国际 幸福9号 All Rights Reserved.
@@ -53,16 +53,16 @@ public class SortField implements Serializable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public boolean isDirection() {
         return direction;
     }
 
     public void setDirection(boolean direction) {
         this.direction = direction;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
 }

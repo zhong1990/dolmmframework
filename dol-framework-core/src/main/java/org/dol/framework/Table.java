@@ -60,6 +60,10 @@ public class Table implements Iterable<Table.Row> {
 
     public class Row {
 
+        public Object[] getData() {
+            return data;
+        }
+
         private Object[] data;
 
         private Row(Object[] data) {

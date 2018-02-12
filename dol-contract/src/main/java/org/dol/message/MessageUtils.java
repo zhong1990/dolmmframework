@@ -3,16 +3,7 @@
  */
 package org.dol.message;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * TODO.
@@ -54,14 +45,6 @@ public abstract class MessageUtils {
         return map;
     }
 
-    public static <K, V extends Id<K>> Collection<K> getIds(List<V> list) {
-        Set<K> ids = new HashSet<K>(list.size());
-        for (V v : list) {
-            ids.add(v.getId());
-        }
-        return ids;
-    }
-
     public static <K, V extends Treeable<K>> List<V> toTree(List<V> list, K rootParentId) {
         Map<K, V> map = toMap(list);
         return toTree(map, list, rootParentId);
@@ -70,13 +53,13 @@ public abstract class MessageUtils {
     public static <K, V extends Treeable<K>> List<V> toTree(Map<K, V> map, List<V> list, K rootParentId) {
         List<V> roots = new ArrayList<V>();
         for (V v : list) {
-            if (v.getParentId() == null || v.getParentId().equals(rootParentId) || v.getParentId().toString().equals(rootParentId.toString())) {
+            if (v.getParentId() == null || v.getParentId().equals(rootParentId)) {
                 roots.add(v);
                 continue;
             }
             V parent = map.get(v.getParentId());
             if (parent != null) {
-                parent.addChild(v);
+                parent.addChildren(v);
             }
         }
         return roots;

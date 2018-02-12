@@ -33,8 +33,7 @@ public enum MessageStatus implements GetMessageStatus {
     API_INVLID_DATA(10102, "请求数据错误"),
     API_NOT_SUPPORT_METHOD(10103, "只接受Post请求"),
     API_INVLID_DATA_FORMAT(10104, "数据格式不符合要求"),
-    API_INVLID_API(10105, "api【%s】不存在"),
-    ;
+    API_INVLID_API(10105, "api【%s】不存在"),;
 
     private int status;
     private String message;
@@ -49,13 +48,13 @@ public enum MessageStatus implements GetMessageStatus {
         return message;
     }
 
+    private void setMessage(String message) {
+        this.message = message;
+    }
+
     @Override
     public int getStatus() {
         return status;
-    }
-
-    private void setMessage(String message) {
-        this.message = message;
     }
 
     private void setStatus(int status) {

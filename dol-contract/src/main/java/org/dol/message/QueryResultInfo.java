@@ -15,32 +15,32 @@ public class QueryResultInfo<E> implements Serializable {
         return pages;
     }
 
-    public List<E> getRecords() {
-        return records;
-    }
-
-    public Long getTotal() {
-        return total;
-    }
-
-    public void setPages(Integer pages) {
-        this.pages = pages;
-    }
-
     public void setPages(Long pages) {
         this.pages = pages.intValue();
+    }
+
+    public List<E> getRecords() {
+        return records;
     }
 
     public void setRecords(List<E> records) {
         this.records = records;
     }
 
-    public void setTotal(Integer total) {
-        this.total = total.longValue();
+    public Long getTotal() {
+        return total;
     }
 
     public void setTotal(Long total) {
         this.total = total;
+    }
+
+    public void setPages(Integer pages) {
+        this.pages = pages;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total.longValue();
     }
 
 }

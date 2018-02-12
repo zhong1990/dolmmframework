@@ -1,202 +1,100 @@
 package org.dol.framework.registry;
 
+import javassist.NotFoundException;
+import org.dol.framework.logging.Logger;
+import org.dol.framework.reflect.ReflectUtil;
+import org.dol.message.Api;
+import org.dol.message.ServiceDef;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+public class ServiceRegistryCenter implements InitializingBean, ApplicationContextAware {
 
-import org.dol.framework.logging.Logger;
-import org.dol.framework.reflect.ReflectUtil;
+    public static final String API_DELIMITER = ".";
+    private static final Logger LOGGER = Logger.getLogger(ServiceRegistryCenter.class);
+    private final Map<Class<?>, Object> serviceObjectMap = new HashMap<>();
+    private final Map<String, ServiceObject> serviceObjectCache = new HashMap<String, ServiceObject>();
+    private List<String> basePackages;
+    private ApplicationContext applicationContext;
 
-import javassist.ClassClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.Modifier;
-import javassist.NotFoundException;
-import javassist.bytecode.CodeAttribute;
-import javassist.bytecode.LocalVariableAttribute;
-import javassist.bytecode.MethodInfo;
 
-public class ServiceRegistryCenter implements BeanPostProcessor {
-	private static final Logger LOGGER = Logger.getLogger(ServiceRegistryCenter.class);
-	public static final String API_DELIMITER = ".";
-	private final Map<String, Class<?>> serviceClassMap = new HashMap<String, Class<?>>();
-	private final Map<String, Object> serviceObjectMap = new HashMap<String, Object>();
-	private final Map<String, ServiceObject> serviceObjectCache = new HashMap<String, ServiceObject>();
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        generateServiceRegistry();
+    }
 
-	private volatile boolean isClassClassPathLoad;
+    /**
+     * 根据接口生成服务对象仓库
+     *
+     * @throws Exception
+     */
+    private void generateServiceRegistry() throws Exception {
+        List<Class> classList = PackageScanner.scan(basePackages);
+        for (Class clazz : classList) {
+            if (clazz.isAnnotationPresent(ServiceDef.class)) {
 
-	public void addService(Object bean, String beanName, Class<?> beanClass) throws NotFoundException {
-		serviceClassMap.put(beanName, beanClass);
-		serviceObjectMap.put(beanName, bean);
+                String[] beanNames = applicationContext.getBeanNamesForType(clazz);
+                if (beanNames.length == 0) {
+                    continue;
+                }
+                if (beanNames.length == 1) {
+                    Object bean = applicationContext.getBean(beanNames[0]);
+                    if (bean != null) {
+                        serviceObjectMap.put(clazz, bean);
+                        generateServiceObject(clazz);
+                    }
+                } else {
+                    throw new Exception("发现多个服务的实现，服务："
+                            + clazz.getName()
+                            + ",实现bean：" + connect2String(beanNames));
+                }
+            }
+        }
+    }
 
-		ClassPool classPool = ClassPool.getDefault();
-		if (!isClassClassPathLoad) {
-			synchronized (this) {
-				if (!isClassClassPathLoad) {
-					ClassClassPath classClassPath = new ClassClassPath(beanClass);
-					classPool.appendClassPath(classClassPath);
-					isClassClassPathLoad = true;
-				}
-			}
-		}
-		generateServiceObject(classPool, beanName);
-	}
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
-	public Map<String, Class<?>> getServiceClassMap() {
-		return serviceClassMap;
-	}
+    public void setBasePackages(List<String> basePackages) {
+        this.basePackages = basePackages;
+    }
 
-	public void generateServiceObject(ClassPool classPool, String beanName) throws NotFoundException {
+    private void generateServiceObject(Class<?> beanClass) throws NotFoundException {
+        ServiceDef annotation = (ServiceDef) beanClass.getAnnotation(ServiceDef.class);
+        Method[] methods = beanClass.getMethods();
+        for (Method method : methods) {
+            if (ReflectUtil.isDefaultMethod(method) || !method.isAnnotationPresent(Api.class)) {
+                continue;
+            }
+            if (ReflectUtil.isDefaultMethod(method)) {
+                continue;
+            }
+            String methodName = method.getName();
+            String api = annotation.value() + API_DELIMITER + methodName;
+            List<ServiceMethodParameter> parameters = ParameterDiscover.getServiceInterfaceMethodParameters(method, true);
+            ServiceObject serviceObject = new ServiceObject(api, serviceObjectMap.get(beanClass), method, parameters);
+            serviceObjectCache.put(api, serviceObject);
+        }
+    }
 
-		Class<?> beanClass = serviceClassMap.get(beanName);
-		CtClass ctClass = classPool.get(beanClass.getName());
-		if (!beanClass.isAnnotationPresent(ServiceName.class)) {
-			return;
-		}
-		Class<?>[] interfaces = beanClass.getInterfaces();
-		Map<String, Class<?>> allMethods = new HashMap<String, Class<?>>();
-		for (Class<?> interfaceClass : interfaces) {
-			Method[] methods = interfaceClass.getMethods();
-			for (Method method : methods) {
-				allMethods.put(method.getName(), interfaceClass);
-			}
-		}
+    private String connect2String(String[] beanNames) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String beanName : beanNames) {
+            stringBuilder.append(beanName + ",");
+        }
+        return stringBuilder.substring(0, stringBuilder.length() - 1);
+    }
 
-		Method[] methods = beanClass.getDeclaredMethods();
-		for (Method method : methods) {
-			if (ReflectUtil.isDefaultMethod(method)) {
-				continue;
-			}
-			Class<?> interfaceClass = allMethods.get(method.getName());
-			if (interfaceClass == null) {
-				continue;
-			}
-
-			String methodName = method.getName();
-			String api = interfaceClass.getName() + API_DELIMITER + methodName;
-			List<ServiceMethodParameter> parameters = getServiceMethodParameters2(method);
-			ServiceObject serviceObject = new ServiceObject(api, serviceObjectMap.get(beanName), method, parameters);
-			serviceObjectCache.put(api, serviceObject);
-		}
-	}
-
-	public ServiceObject getServiceObject(String api) throws Exception {
-		return serviceObjectCache.get(api);
-	}
-
-	@Override
-	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-		// TODO 自动生成的方法存根
-		return bean;
-	}
-
-	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		if (bean != null) {
-			Class<?> beanClass = bean.getClass();
-
-			if (beanClass.isAnnotationPresent(ServiceName.class)) {
-				try {
-					this.addService(bean, beanName, beanClass);
-					LOGGER.debug("find service resource " + beanName);
-				} catch (NotFoundException e) {
-					LOGGER.error("postProcessAfterInitialization", "生成serviceObject失败： " + beanName, e);
-				}
-			}
-		}
-		return bean;
-	}
-
-	public static List<ServiceMethodParameter> getServiceMethodParameters(
-			CtClass ctClass,
-			Method method) {
-
-		List<ServiceMethodParameter> parameters = new ArrayList<ServiceMethodParameter>();
-		try {
-			CtMethod ctMethod = ctClass.getDeclaredMethod(method.getName());
-			int pos = Modifier.isStatic(ctMethod.getModifiers()) ? 0 : 1;
-			MethodInfo methodInfo = ctMethod.getMethodInfo();
-			CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
-			Class<?>[] parameterClasses = method.getParameterTypes();
-			Type[] parameterTypes = method.getGenericParameterTypes();
-			for (int i = 0; i < parameterClasses.length; i++) {
-				String paramName = attr.variableName(i + pos);
-				if (paramName.equalsIgnoreCase("i$")) {
-					LOGGER.error("getServiceMethodParameters", "获取参数名称失败", ctClass.getName() + API_DELIMITER + method.getName());
-				}
-				Class<?> parameterClass = parameterClasses[i];
-				ServiceMethodParameter serviceMethodParameter = new ServiceMethodParameter();
-				serviceMethodParameter.setParameterName(paramName);
-				serviceMethodParameter.setParameterClass(parameterClass);
-				serviceMethodParameter.setParameterType(parameterTypes[i]);
-				parameters.add(serviceMethodParameter);
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("getServiceMethodParameters", "不应该发生的错误", e);
-		}
-		return parameters;
-
-	}
-
-	private static final LocalVariableTableParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
-
-	public static List<ServiceMethodParameter> getServiceMethodParameters2(
-			Method method) {
-		List<ServiceMethodParameter> parameters = new ArrayList<ServiceMethodParameter>();
-		try {
-			String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
-
-			Class<?>[] parameterClasses = method.getParameterTypes();
-			Type[] parameterTypes = method.getGenericParameterTypes();
-			for (int i = 0; i < parameterClasses.length; i++) {
-				String paramName = parameterNames[i];
-				Class<?> parameterClass = parameterClasses[i];
-				ServiceMethodParameter serviceMethodParameter = new ServiceMethodParameter();
-				serviceMethodParameter.setParameterName(paramName);
-				serviceMethodParameter.setParameterClass(parameterClass);
-				serviceMethodParameter.setParameterType(parameterTypes[i]);
-				parameters.add(serviceMethodParameter);
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("getServiceMethodParameters", "不应该发生的错误", e);
-		}
-		return parameters;
-
-	}
-
-	/*
-	 * public static void main(String[] args) throws NotFoundException {
-	 * ServiceRegistryCenter serviceRegistryCenter = new
-	 * ServiceRegistryCenter(); UserServiceImpl bean = serviceRegistryCenter.new
-	 * UserServiceImpl(); serviceRegistryCenter.addService(bean, "userService",
-	 * bean.getClass()); }
-	 * 
-	 * public interface UserService { public UserInfo getData(List<UserInfo>
-	 * data); }
-	 * 
-	 * @ServiceName public class UserServiceImpl implements UserService { public
-	 * UserInfo getData(List<UserInfo> data) { for (UserInfo userInfo : data) {
-	 * System.out.println(userInfo.getUserName()); } return data.get(0); } }
-	 * 
-	 * public class UserInfo {
-	 * 
-	 * private String userName;
-	 * 
-	 * public String getUserName() { return userName; }
-	 * 
-	 * public void setUserName(String userName) { this.userName = userName; }
-	 * 
-	 * }
-	 */
+    public ServiceObject getServiceObject(String api) throws Exception {
+        return serviceObjectCache.get(api);
+    }
 }
